@@ -1,0 +1,115 @@
+---
+title: "Create Datafile"
+author: "Aaron Schroeder"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Get dataset DOI
+
+```{r}
+dataset_doi <- readLines(here::here("data/dataset_doi"))[1]
+```
+
+## Code you used to create dataset - LIST BELOW
+
+Ex: database_schema_name.database_table_name: file_name_that_created_this_table.R/RMD
+
+
+```{r data}
+
+# Ex database_table_name: "va_hd_vdoe_2019_2021_3rd_grade_mean_median_read_score"
+table_names = c("vadcmd_cttrbg_acs5_2009_2019_housing_access", "ncr_cttrbg_acs5_2009_2019_housing_access") 
+db_schema_name <- "dc_transportation_housing"
+#con <- get_db_conn()
+
+#dat_file_name <- table_names[1]
+  # Ex database schema_name: dc_education_training
+#all_geos_dat <- DBI::dbReadTable(con, c(db_schema_name, dat_file_name))  
+
+#if (length(table_names) > 1)
+#{
+#  for (i in 2:length(table_names))
+#  { 
+#    dat_file_name <- table_names[i]
+#    dat <- DBI::dbReadTable(con, c(db_schema_name, dat_file_name)) 
+#
+#    all_geos_dat <- rbind(all_geos_dat, dat)  
+#  }
+#}
+
+#DBI::dbDisconnect(con)
+
+
+#all_geos_file_name <- "new_file_name"  #Ex: "va_vdoe_2019_2021_3rd_grade_mean_median_read_score"
+#assign(all_geos_file_name, all_geos_dat)
+```
+
+## Write to compressed file
+
+```{r compress}
+dat_file_path1 <- here::here(paste0("data/", table_names[1], ".csv.xz"))
+dat_file_path2 <- here::here(paste0("data/", table_names[2], ".csv.xz"))
+
+readr::write_csv(access, xzfile(dat_file_path1, compression = 9))
+readr::write_csv(ncr_access, xzfile(dat_file_path2, compression = 9))
+```
+
+## Upload Files to Dataverse Dataset
+
+```{r upload}
+
+# check if file already exists
+
+file_names <- dataverse::dataset_files(
+    dataset = dataset_doi,
+    version = ":latest",
+    key = Sys.getenv("DATAVERSE_KEY"),
+    server = Sys.getenv("DATAVERSE_SERVER")
+)
+
+names <- c()
+
+if (length(file_names) > 0)
+{
+  for(i in 1:length(file_names))
+  {
+    names <- c(names, file_names[[i]]$dataFile$filename)
+  }
+
+} else
+{
+  names <- file_names
+}
+
+
+if (paste0(table_names[2], ".csv.xz") %in% names) # file already exists, so we update it
+{
+   idx = which(names == paste0(table_names[2], ".csv.xz"))
+  
+   dataverse::update_dataset_file(
+     file = dat_file_path2,
+     dataset = dataset_doi,
+     id = file_names[[idx]]$dataFile$id,
+     key = Sys.getenv("DATAVERSE_KEY"),
+     server   = Sys.getenv("DATAVERSE_SERVER"),
+     description = table_names[2]
+   )
+   
+} else  # file doesn't exist, so we add it to the dataset
+{
+   dataverse::add_dataset_file(
+     file = dat_file_path2,
+     dataset = dataset_doi,
+     key = Sys.getenv("DATAVERSE_KEY"),
+     server   = Sys.getenv("DATAVERSE_SERVER"),
+     description = table_names[2]
+   )
+}
+  
+  
+```
