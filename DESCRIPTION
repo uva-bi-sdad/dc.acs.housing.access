@@ -1,12 +1,12 @@
 Package: dc.template
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Get Housing Access Data From SDAD Social Data Commons
 Version: 0.1.0
 Authors@R: c(
-    person("Social and Decision Analytics Division (SDAD), Biocomplexity Institute, University of Virginia", role = c("aut", "cre")),
-    person("YOUR_FIRST_NAME", "YOUR_LAST_NAME", role = c("aut", "cre"))
+    person("Social and Decision Analytics Division (SDAD), Biocomplexity Institute, University of Virginia", role = c("aut")),
+    person("Joanna", "Schroeder", email = "js2mr@virginia.edu", role = c("aut", "cre"))
   )
-Description: Allows user to easily get YOUR_DATA data from the SDAD Data Commons.  Data can be provided directly or in a file.
+Description: Allows user to easily get housing access data from the SDAD Data Commons.  Data can be provided directly or in a file.
 License: CC0 1.0
 Encoding: UTF-8
 LazyData: true
